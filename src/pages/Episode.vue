@@ -10,7 +10,7 @@
       <div v-if="characters.length > 0">
         <h3 class="text-2xl font-bold mb-4 text-lime-300">Characters in this episode:</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="character in characters" :key="character.id" class="bg-lime-800 p-6 rounded-lg">
+          <div v-for="character in characters" :key="character.id" class="bg-lime-800 p-6 rounded-lg" >
             <img :src="character.image" :alt="character.name" class="w-full h-32 object-cover mb-4 rounded">
             <h3 class="text-xl font-bold text-white">{{ character.name }}</h3>
             <p class="text-gray-400">Status: {{ character.status }}</p>
@@ -24,29 +24,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import { useQuery} from '@vue/apollo-composable';
+import gql from 'graphql-tag';
+
+const GET_EPISODE = gql`
+  query GetEpisode($id: ID!) {
+    episode(id: $id) {
+      id
+      name
+      air_date
+      episode
+      created
+      characters {
+        id
+        name
+        status
+        species
+        gender
+        image
+      }
+    }
+  }
+`;
 
 const episode = ref(null);
 const characters = ref([]);
-const route = useRoute();
 
+const route = useRoute();
 const episodeId = route.params.id;
 
-onMounted(async () => {
-  try {
-    const episodeResponse = await fetch(`https://rickandmortyapi.com/api/episode/${episodeId}`);
-    const episodeData = await episodeResponse.json();
-    episode.value = {
-      name: episodeData.name,
-      air_date: episodeData.air_date,
-      episode: episodeData.episode,
-      created: episodeData.created,
-    };
+const { result, loading, error } = useQuery(GET_EPISODE, { id: episodeId });
 
-    const characterResponses = await Promise.all(episodeData.characters.map(url => fetch(url)));
-    const characterData = await Promise.all(characterResponses.map(res => res.json()));
-    characters.value = characterData.map(character => ({
+watchEffect(() => {
+  if (!loading.value && result.value) {
+    episode.value = {
+      name: result.value.episode.name,
+      air_date: result.value.episode.air_date,
+      episode: result.value.episode.episode,
+      created: result.value.episode.created,
+    };
+    characters.value = result.value.episode.characters.map(character => ({
       id: character.id,
       name: character.name,
       status: character.status,
@@ -54,8 +73,6 @@ onMounted(async () => {
       gender: character.gender,
       image: character.image,
     }));
-  } catch (error) {
-    console.error('Error fetching episode and characters:', error);
   }
 });
 </script>

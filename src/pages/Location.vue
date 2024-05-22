@@ -24,8 +24,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import { useQuery} from '@vue/apollo-composable';
+import gql from 'graphql-tag';
+
+const GET_LOCATION = gql`
+  query GetLocation($id: ID!) {
+    location(id: $id) {
+      name
+      type
+      dimension
+      created
+      residents {
+        id
+        name
+        status
+        species
+        gender
+        image
+      }
+    }
+  }
+`;
 
 const location = ref(null);
 const residents = ref([]);
@@ -33,27 +54,17 @@ const residents = ref([]);
 const route = useRoute();
 const locationId = route.params.id;
 
-onMounted(async () => {
-  try {
-    // Fetch location details
-    const locationResponse = await fetch(`https://rickandmortyapi.com/api/location/${locationId}`);
-    const locationData = await locationResponse.json();
+const { result, loading, error } = useQuery(GET_LOCATION, { id: locationId });
+
+watchEffect(() => {
+  if (!loading.value && result.value) {
     location.value = {
-      name: locationData.name,
-      type: locationData.type,
-      dimension: locationData.dimension,
-      created: locationData.created,
+      name: result.value.location.name,
+      type: result.value.location.type,
+      dimension: result.value.location.dimension,
+      created: result.value.location.created,
     };
-
-    // Fetch residents details
-    const residentResponses = await Promise.all(
-      locationData.residents.map(url => fetch(url))
-    );
-    const residentData = await Promise.all(
-      residentResponses.map(response => response.json())
-    );
-
-    residents.value = residentData.map(resident => ({
+    residents.value = result.value.location.residents.map(resident => ({
       id: resident.id,
       name: resident.name,
       status: resident.status,
@@ -61,8 +72,6 @@ onMounted(async () => {
       gender: resident.gender,
       image: resident.image,
     }));
-  } catch (error) {
-    console.error('Error fetching location details:', error);
   }
 });
 </script>

@@ -8,9 +8,9 @@
         <p class="text-gray-400">Species: {{ character.species }}</p>
         <p class="text-gray-400">Gender: {{ character.gender }}</p>
       </div>
-      <div v-if="location" class="mb-8">
+      <div v-if="character?.location" class="mb-8">
         <h3 class="text-2xl font-bold mb-4 text-lime-300">Last Known Location</h3>
-        <p class="text-gray-400">{{ location.name }}</p>
+        <p class="text-gray-400">{{ character.location.name }}</p>
       </div>
       <div v-if="episodes.length > 0">
         <h3 class="text-2xl font-bold mb-4 text-lime-300">Episodes</h3>
@@ -28,53 +28,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import { useQuery} from '@vue/apollo-composable';
+import gql from 'graphql-tag';
+
+const GET_CHARACTER = gql`
+  query GetCharacter($id: ID!) {
+    character(id: $id) {
+      id
+      name
+      status
+      species
+      gender
+      image
+      location {
+        name
+      }
+      episode {
+        id
+        name
+        air_date
+        episode
+        created
+      }
+    }
+  }
+`;
 
 const character = ref(null);
 const episodes = ref([]);
-const location = ref(null);
 
 const route = useRoute();
 const characterId = route.params.id;
 
-onMounted(async () => {
-  try {
-    const characterResponse = await fetch(`https://rickandmortyapi.com/api/character/${characterId}`);
-    const characterData = await characterResponse.json();
-    character.value = {
-      name: characterData.name,
-      status: characterData.status,
-      species: characterData.species,
-      gender: characterData.gender,
-      image: characterData.image,
-    };
+const { result, loading, error } = useQuery(GET_CHARACTER, { id: characterId });
 
-    const locationResponse = await fetch(characterData.location.url);
-    const locationData = await locationResponse.json();
-    location.value = {
-      name: locationData.name,
-    };
-
-    const episodeResponses = await Promise.all(
-      characterData.episode.map(url => fetch(url))
-    );
-    const episodeData = await Promise.all(
-      episodeResponses.map(response => response.json())
-    );
-
-    episodes.value = episodeData.map(episode => ({
-      id: episode.id,
-      name: episode.name,
-      air_date: episode.air_date,
-      episode: episode.episode,
-      created: episode.created,
-    }));
-  } catch (error) {
-    console.error('Error fetching character details:', error);
+watchEffect(() => {
+  if (!loading.value && result.value) {
+    character.value = result.value.character;
+    episodes.value = result.value.character.episode;
   }
 });
 </script>
 
 <style scoped>
 </style>
+

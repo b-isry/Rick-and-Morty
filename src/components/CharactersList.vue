@@ -14,32 +14,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
+import { useQuery } from '@vue/apollo-composable'; 
+import gql from 'graphql-tag';
 import { useRouter } from 'vue-router';
 
+const GET_CHARACTERS = gql`
+  query {
+    characters {
+      results {
+        id
+        name
+        species
+        image
+      }
+    }
+  }
+`;
+
+const { result, loading } = useQuery(GET_CHARACTERS);
 const characters = ref([]);
 const router = useRouter();
 
-onMounted(async () => {
-  try {
-    const response = await fetch('https://rickandmortyapi.com/api/character');
-    const data = await response.json();
-    characters.value = data.results.map(character => ({
-      id: character.id,
-      name: character.name,
-      species: character.species,
-      image: character.image,
-    }));
-  } catch (error) {
-    console.error('Error fetching characters:', error);
-  }
-});
+characters.value = result.value ? result.value.characters.results : [];
 
 function goToCharacter(characterId) {
   router.push({ path: `/character/${characterId}` });
 }
 </script>
-
 <style scoped>
 </style>
 

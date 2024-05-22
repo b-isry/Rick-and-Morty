@@ -8,7 +8,7 @@ const cache = new InMemoryCache()
 
 const apolloClient = new ApolloClient({
   cache,
-  uri: '<https://rickandmortyapi.com/graphql>',
+  uri: 'https://rickandmortyapi.com/graphql',
 })
 
 const app = createApp({

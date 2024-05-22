@@ -14,21 +14,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
 import { useRouter } from 'vue-router';
 
+const GET_LOCATIONS = gql`
+  query {
+  locations {
+    results {
+      id
+      name
+      type
+    }
+  }
+}
+`;
 
-const locations = ref(null);
+const { result, loading } = useQuery(GET_LOCATIONS);
+const locations = ref([]);
 const router = useRouter();
 
-
-onMounted(async () => {
-  try {
-    const response = await fetch('https://rickandmortyapi.com/api/location');
-    const data = await response.json();
-    locations.value = data.results;
-  } catch (error) {
-    console.error('Error fetching locations:', error);
+watch(result, () => {
+  if (result.value) {
+    locations.value = result.value.locations.results;
   }
 });
 
