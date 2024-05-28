@@ -61,7 +61,7 @@ function goToCharacter(characterId) {
 
 <style scoped>
 .bg-lime-800:hover {
-  background-color: #1b5f12;
+  background-color: #154b0d;
 }
 </style>
 

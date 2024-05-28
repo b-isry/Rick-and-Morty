@@ -54,7 +54,7 @@ function goToEpisode(episodeId) {
 
 <style scoped>
 .bg-lime-800:hover {
-  background-color: #1b5f12; /* Darker lime green on hover */
+  background-color: #1b5f12; 
 }
 </style>
 
