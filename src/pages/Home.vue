@@ -8,12 +8,11 @@ import LocationsList from "../components/LocationsList.vue";
 
 </script>
 <template>
-    <Header />
-  <div class="container mx-auto flex flex-wrap justify-center">
-    <Carousel class="w-full lg:w-1/2 lg:pl-4" />
-      <ShowDescription class="w-full lg:w-1/2 lg:pr-4" />
-      
-    </div>
+    <Header class="mb-3" />
+  <div class="container mx-auto flex flex-col lg:flex-row justify-center">
+  <Carousel class="w-full lg:w-1/2 lg:pl-4 h-64 lg:h-auto" />
+  <ShowDescription class="w-full lg:w-1/2 lg:pr-4" />
+</div>
   <CharactersList />
   <EpisodesList />
   <LocationsList />

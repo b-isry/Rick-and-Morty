@@ -1,19 +1,19 @@
 <template>
   <section class="relative overflow-hidden py-12 bg-lime-50">
-    <div class="container mx-auto relative">
+    <div class="container mx-auto">
       <div
         v-for="(image, index) in images"
         :key="index"
         :class="['carousel-item', { 'opacity-100': index === currentIndex, 'opacity-0': index !== currentIndex }]"
         class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
       >
-        <img :src="image.src" :alt="image.alt" class="w-full h-64 object-cover">
+        <img :src="image.src" :alt="image.alt" class="w-65 h-65 object-cover">
       </div>
       <div class="absolute inset-0 flex items-center justify-between px-4">
-        <button @click="prev" class="bg-lime-900 text-white p-2 rounded-full">
+        <button @click="prev" class="bg-lime-900 text-white p-2 rounded-full absolute top-1/2 transform -translate-y-1/2 left-0">
           &#10094;
         </button>
-        <button @click="next" class="bg-lime-900 text-white p-2 rounded-full">
+        <button @click="next" class="bg-lime-900 text-white p-2 rounded-full absolute top-1/2 transform -translate-y-1/2 right-0">
           &#10095;
         </button>
       </div>
@@ -21,15 +21,19 @@
   </section>
 </template>
 
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const images = ref([
-  { url: '/assets/img1.jpg', alt: 'Rick and Morty Image 1' },
-  { src: '/assets/img2.jpg', alt: 'Rick and Morty Image 2' },
-  { src: '/assets/img3.jpg', alt: 'Rick and Morty Image 3' },
-  { src: '/assets/img4.jpg', alt: 'Rick and Morty Image 4' },
-  { src: '/assets/img5.jpg', alt: 'Rick and Morty Image 5' },
+  { src: new URL('../assets/image2.jpg', import.meta.url).href, alt: 'Rick and Morty Image 2' },
+  { src: new URL('../assets/image3.jpg', import.meta.url).href, alt: 'Rick and Morty Image 3' },
+  { src: new URL('../assets/image4.jpg', import.meta.url).href, alt: 'Rick and Morty Image 4' },
+  { src: new URL('../assets/image5.jpg', import.meta.url).href, alt: 'Rick and Morty Image 5' },
+  { src: new URL('../assets/image6.jpg', import.meta.url).href, alt: 'Rick and Morty Image 6' },
+  { src: new URL('../assets/image7.jpg', import.meta.url).href, alt: 'Rick and Morty Image 7' },
+  { src: new URL('../assets/image8.jpg', import.meta.url).href, alt: 'Rick and Morty Image 8' },
+  { src: new URL('../assets/image11.jpg', import.meta.url).href, alt: 'Rick and Morty Image 11' },
 ]);
 
 const currentIndex = ref(0);
@@ -60,6 +64,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   opacity: 0;
+  transition: opacity 1s ease-in-out;
 }
 
 .carousel-item.opacity-100 {

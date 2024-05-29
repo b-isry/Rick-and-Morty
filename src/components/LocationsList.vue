@@ -54,6 +54,6 @@ function goToLocation(locationId) {
 
 <style scoped>
 .bg-lime-800:hover {
-  background-color: #1b5f12; 
+  background-color: rgb(54 83 20);
 }
 </style>
